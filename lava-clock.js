@@ -13,16 +13,16 @@ function setup() {
 function draw() {
   background(20);
   
-  // Get current time
+  // gets current time
   let h = hour();
   let m = minute();
   let s = second();
   
-  // Convert to 12-hour format
+  // made it 12 hour format because if not its kind of hard to count
   let h12 = h % 12;
   if (h12 === 0) h12 = 12;
   
-  // Update balls if time changed
+  // updates the balls if the time changes
   if (h12 !== lastHour) {
     updateBalls(hourBalls, h12, 150, 150, 110, color(255, 80, 120));
     lastHour = h12;
@@ -36,7 +36,7 @@ function draw() {
     lastSecond = s;
   }
   
-  // Draw circular containers and balls
+  // draws the circles and the balls
   drawCircleContainer(150, 150, 110, hourBalls);
   drawCircleContainer(400, 150, 110, minuteBalls);
   drawCircleContainer(650, 150, 110, secondBalls);
@@ -59,13 +59,13 @@ function updateBalls(ballArray, count, centerX, centerY, radius, ballColor) {
 }
 
 function drawCircleContainer(cx, cy, r, balls) {
-  // Draw circle outline
+  // draw circle outline
   noFill();
   stroke(100, 100);
   strokeWeight(2);
   ellipse(cx, cy, r * 2);
   
-  // Update and draw balls
+  // update and draw balls
   for (let ball of balls) {
     ball.updateCircle(cx, cy, r, balls);
     ball.display();
@@ -78,7 +78,7 @@ class LavaBall {
     this.containerY = centerY;
     this.containerRadius = containerRadius;
     
-    // Start at random position within circle
+    // lets you start at random position within circle
     let angle = random(TWO_PI);
     let dist = random(0, containerRadius - 15);
     this.x = centerX + cos(angle) * dist;
@@ -98,23 +98,22 @@ class LavaBall {
     this.vx += sin(this.floatOffset) * 0.03;
     this.vy += cos(this.floatOffset * 0.7) * 0.05;
     
-    // Very slow drift
-    this.vy += random(-0.01, 0.02);
     
-    // Heavy damping for viscous feel
+    this.vy += random(-0.01, 0.02); // slow drift thats random
+    
     this.vx *= 0.98;
     this.vy *= 0.98;
     
-    // Limit maximum speed for slow movement
-    this.vx = constrain(this.vx, -0.8, 0.8);
+    
+    this.vx = constrain(this.vx, -0.8, 0.8); // limit maximum speed for slow movement
     this.vy = constrain(this.vy, -1, 1);
     
-    // Update position
-    this.x += this.vx;
+    
+    this.x += this.vx; // updates the pos
     this.y += this.vy;
     
-    // Keep balls within circle boundary
-    let distFromCenter = dist(this.x, this.y, cx, cy);
+    
+    let distFromCenter = dist(this.x, this.y, cx, cy); // this keeps the balls within the circle
     let maxDist = containerR - this.radius;
     
     if (distFromCenter > maxDist) {
@@ -123,21 +122,21 @@ class LavaBall {
       this.x = cx + cos(angle) * maxDist;
       this.y = cy + sin(angle) * maxDist;
       
-      // Bounce velocity
-      this.vx *= -0.5;
+      
+      this.vx *= -0.5; // bounce spped
       this.vy *= -0.5;
     }
     
-    // Soft collision with other balls
+    // makes the collision happen with other balls
     for (let other of otherBalls) {
       if (other !== this) {
         let d = dist(this.x, this.y, other.x, other.y);
         let minDist = this.radius * 2;
         
         if (d < minDist && d > 0) {
-          // Gentle repulsion
+          
           let angle = atan2(other.y - this.y, other.x - this.x);
-          let force = (minDist - d) * 0.02;
+          let force = (minDist - d) * 0.02; // collision logic
           
           this.vx -= cos(angle) * force;
           this.vy -= sin(angle) * force;
@@ -151,16 +150,7 @@ class LavaBall {
   display() {
     noStroke();
     
-    // Simple soft shadow
-    fill(0, 30);
-    ellipse(this.x + 2, this.y + 3, this.radius * 2);
-    
-    // Main ball - solid and clear
     fill(this.color);
     ellipse(this.x, this.y, this.radius * 2);
-    
-    // Simple highlight for depth
-    fill(255, 40);
-    ellipse(this.x - this.radius * 0.4, this.y - this.radius * 0.4, this.radius * 0.8);
   }
 }
